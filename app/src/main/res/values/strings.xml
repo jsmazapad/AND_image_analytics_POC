@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">AND_image_analytics_POC</string>
+    <string name="picture">Picture</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+    <string name="intro_message">
+        <![CDATA[
+
+
+            POC to show usage of camera2 API and integration with image analytics providing characteristics vectors from images
+
+
+        ]]>
+    </string>
+</resources>
