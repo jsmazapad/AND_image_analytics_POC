@@ -4,6 +4,7 @@ import android.provider.BaseColumns;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
@@ -29,6 +30,7 @@ public class ImageRegister {
     private List<Double> embedding;
     private boolean remoteSynced;
 
+    @Ignore
     public ImageRegister(String imageName, List<Double> embedding, boolean remoteSynced) {
         this.imageName = imageName;
         this.embedding = embedding;

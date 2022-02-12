@@ -5,10 +5,12 @@ import androidx.lifecycle.MutableLiveData;
 import com.jsm.and_image_analytics_poc.core.data.network.RetrofitService;
 import com.jsm.and_image_analytics_poc.core.data.network.responses.NetworkElementResponse;
 import com.jsm.and_image_analytics_poc.core.data.repositories.responses.ElementResponse;
+import com.jsm.and_image_analytics_poc.data.database.DBHelper;
 import com.jsm.and_image_analytics_poc.data.network.AnalyticsApiService;
 import com.jsm.and_image_analytics_poc.data.network.AppDeserializerProvider;
 import com.jsm.and_image_analytics_poc.data.network.AppNetworkErrorTreatment;
 import com.jsm.and_image_analytics_poc.model.ImageEmbeddingVector;
+import com.jsm.and_image_analytics_poc.model.ImageRegister;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +52,14 @@ public class Repository {
         }
 
 
+
+    }
+
+    public static void insertImageEmbedding(File imageFile, ImageEmbeddingVector vector){
+        ImageRegister imageRegister = new ImageRegister(imageFile.getName(), vector.getEmbedding(), false);
+        //TODO Refactorizar para quitar livedata
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+        DBHelper.insertImageRegister(imageRegister, result);
 
     }
 }

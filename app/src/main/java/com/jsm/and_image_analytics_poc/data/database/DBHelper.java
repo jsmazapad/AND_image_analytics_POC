@@ -55,11 +55,11 @@ public class DBHelper {
     }
 
 
-    public static ImageRegister getBeerById(ImageRegister beer) {
+    public static ImageRegister getImageById(ImageRegister beer) {
         return appDatabase.imageDao().selectById(beer.getInternalId());
     }
 
-    public static void deleteBeersById(ImageRegister beer) {
+    public static void deleteImagesById(ImageRegister beer) {
         appDatabase.imageDao().deleteById(beer.getInternalId());
     }
 

@@ -8,9 +8,12 @@ import java.io.FileOutputStream;
 
 public class ImageResizer {
 
-    public static void resizeImageFile(File originalImageFile, File resizedImageFile, int maxSize) {
+    public static boolean resizeImageFile(File originalImageFile, File resizedImageFile, int maxSize) {
         Bitmap bitmap = BitmapFactory.decodeFile(originalImageFile.getAbsolutePath());
         Bitmap resizedBitmap;
+        if (bitmap == null){
+            return false;
+        }
         if (bitmap.getWidth() > bitmap.getHeight()) {
             resizedBitmap = Bitmap.createScaledBitmap(bitmap, maxSize, maxSize * bitmap.getHeight() / bitmap.getWidth(), false);
         } else {
@@ -25,8 +28,10 @@ public class ImageResizer {
             fileOutputStream.close();
             bitmap.recycle();
             resizedBitmap.recycle();
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 }

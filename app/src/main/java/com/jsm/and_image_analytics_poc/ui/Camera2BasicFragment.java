@@ -23,6 +23,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraCaptureSession;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -38,17 +39,24 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.jsm.and_image_analytics_poc.R;
+import com.jsm.and_image_analytics_poc.Repository;
 import com.jsm.and_image_analytics_poc.config.ConfigConstants;
 import com.jsm.and_image_analytics_poc.core.data.repositories.responses.ElementResponse;
+import com.jsm.and_image_analytics_poc.libs.ImageResizer;
 import com.jsm.and_image_analytics_poc.libs.camera.CameraProvider;
+import com.jsm.and_image_analytics_poc.libs.camera.ImageReceivedCallback;
 import com.jsm.and_image_analytics_poc.model.ImageEmbeddingVector;
 
+import java.io.File;
+import java.io.IOException;
+
 public class Camera2BasicFragment extends Fragment
-        implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
+        implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback, ImageReceivedCallback {
 
     MutableLiveData<ElementResponse<ImageEmbeddingVector>> serverResponse = new MutableLiveData<>();
     CameraProvider cameraProvider;
     private AutoFitTextureView mTextureView;
+    private File actualFile;
 
 
 
@@ -84,6 +92,7 @@ public class Camera2BasicFragment extends Fragment
                     Log.e("ERROR", response.getError().getLocalizedMessage());
                 }else{
                     Log.d("RESPONSE", response.getResultElement().toString());
+                    Repository.insertImageEmbedding(actualFile, response.getResultElement());
                 }
             }
         });
@@ -96,20 +105,17 @@ public class Camera2BasicFragment extends Fragment
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
-        cameraProvider = new CameraProvider(mTextureView, this, serverResponse);
+        cameraProvider = new CameraProvider(mTextureView, this, this);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-//        mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
-//        File targetFile = new File(getActivity().getExternalFilesDir(null), "pic_resized.jpg");
-//        ImageResizer.resizeImageFile(mFile, targetFile, 299);
-//        Repository.getEmbedding(serverResponse, targetFile);
+
 
 
         /**
-         * Código para pruebas de carga
+         * Código para pruebas de carga rápidas de servidor
          */
 //        try
 //        {
@@ -137,7 +143,7 @@ public class Camera2BasicFragment extends Fragment
     @Override
     public void onPause() {
         cameraProvider.closeCamera();
-        cameraProvider.stopBackgroundThread();
+
         super.onPause();
     }
 
@@ -162,7 +168,8 @@ public class Camera2BasicFragment extends Fragment
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.picture: {
-                cameraProvider.takePicture();
+                File mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
+                cameraProvider.takePicture(mFile);
                 break;
             }
             case R.id.info: {
@@ -178,6 +185,25 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
+    @Override
+    public void onImageReceived(File imageFile) {
+        File targetFile = new File(getActivity().getExternalFilesDir(null), "pic_resized.jpg");
+        try {
+            targetFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(imageFile != null && targetFile != null) {
+            ImageResizer.resizeImageFile(imageFile, targetFile, 299);
+            actualFile = targetFile;
+            Repository.getEmbedding(serverResponse, targetFile);
+        }
+    }
+
+    @Override
+    public void onErrorReceived(String error) {
+
+    }
 
 
     /**
