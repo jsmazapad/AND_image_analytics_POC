@@ -23,13 +23,21 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.CameraCaptureSession;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
 import android.util.Log;
@@ -38,6 +46,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.jsm.and_image_analytics_poc.R;
 import com.jsm.and_image_analytics_poc.Repository;
 import com.jsm.and_image_analytics_poc.config.ConfigConstants;
@@ -49,14 +58,18 @@ import com.jsm.and_image_analytics_poc.model.ImageEmbeddingVector;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback, ImageReceivedCallback {
 
     MutableLiveData<ElementResponse<ImageEmbeddingVector>> serverResponse = new MutableLiveData<>();
     CameraProvider cameraProvider;
-    private AutoFitTextureView mTextureView;
+    private PreviewView previewView;
     private File actualFile;
+    private ImageCapture imageCapture;
 
 
 
@@ -104,8 +117,73 @@ public class Camera2BasicFragment extends Fragment
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
-        mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
-        cameraProvider = new CameraProvider(mTextureView, this, this);
+        previewView =  view.findViewById(R.id.cameraPreview);
+
+
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
+                ProcessCameraProvider.getInstance(getContext());
+
+        cameraProviderFuture.addListener(() -> {
+            try {
+                // Camera provider is now guaranteed to be available
+                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+
+                // Set up the view finder use case to display camera preview
+                Preview preview = new Preview.Builder().build();
+
+                // Set up the capture use case to allow users to take photos
+                imageCapture = new ImageCapture.Builder()
+                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                        .build();
+
+                int lensFacing = CameraSelector.LENS_FACING_BACK;
+                // Choose the camera by requiring a lens facing
+                CameraSelector cameraSelector = new CameraSelector.Builder()
+                        .requireLensFacing(lensFacing)
+                        .build();
+
+                // Unbind use cases before rebinding
+                cameraProvider.unbindAll();
+
+                // Attach use cases to the camera with the same lifecycle owner
+                Camera camera = cameraProvider.bindToLifecycle(
+                        (this),
+                        cameraSelector,
+                        preview,
+                        imageCapture);
+
+                // Connect the preview use case to the previewView
+                preview.setSurfaceProvider(
+                        previewView.getSurfaceProvider());
+            } catch (InterruptedException | ExecutionException e) {
+                // Currently no exceptions thrown. cameraProviderFuture.get()
+                // shouldn't block since the listener is being called, so no need to
+                // handle InterruptedException.
+            }
+        }, ContextCompat.getMainExecutor(getContext()));
+
+
+    }
+
+    public void takePicture(File mFile){
+        Executor cameraExecutor =  Executors.newSingleThreadExecutor();
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(mFile).build();
+        imageCapture.takePicture(outputFileOptions, cameraExecutor,
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(ImageCapture.OutputFileResults outputFileResults) {
+                        // insert your code here.
+                        Log.d("ImageSaved",outputFileResults.getSavedUri().getPath());
+                        Camera2BasicFragment.this.onImageReceived(new File(outputFileResults.getSavedUri().getPath()));
+                    }
+                    @Override
+                    public void onError(ImageCaptureException error) {
+                        // insert your code here.
+                        error.printStackTrace();
+                    }
+                }
+        );
     }
 
     @Override
@@ -137,12 +215,12 @@ public class Camera2BasicFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        cameraProvider.initCamera(mTextureView);
+        //cameraProvider.initCamera(mTextureView);
     }
 
     @Override
     public void onPause() {
-        cameraProvider.closeCamera();
+      //  cameraProvider.closeCamera();
 
         super.onPause();
     }
@@ -169,7 +247,7 @@ public class Camera2BasicFragment extends Fragment
         switch (view.getId()) {
             case R.id.picture: {
                 File mFile = new File(getActivity().getExternalFilesDir(null), "pic.jpg");
-                cameraProvider.takePicture(mFile);
+                takePicture(mFile);
                 break;
             }
             case R.id.info: {

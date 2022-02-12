@@ -2,6 +2,7 @@ package com.jsm.and_image_analytics_poc.libs.camera;
 
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.jsm.and_image_analytics_poc.ui.AutoFitTextureView;
 import java.io.File;
@@ -17,9 +18,7 @@ public class CameraProvider {
 
 
 
-    public CameraProvider(AutoFitTextureView mTextureView, Fragment fragment, ImageReceivedCallback imageReceivedCallback) {
-
-        cameraHandler = new Camera2Handler(mTextureView, fragment, imageReceivedCallback);
+    public CameraProvider(LifecycleOwner owner) {
 
         this.imageReceivedCallback = imageReceivedCallback;
         
