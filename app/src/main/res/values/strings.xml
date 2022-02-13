@@ -13,4 +13,6 @@
 
         ]]>
     </string>
+    <string name="default_modal_okButton">Ok</string>
+    <string name="default_modal_cancelButton">Cancel</string>
 </resources>

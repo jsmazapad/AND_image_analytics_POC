@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.jsm.and_image_analytics_poc.R;
-import com.jsm.and_image_analytics_poc.ui.Camera2BasicFragment;
+import com.jsm.and_image_analytics_poc.ui.camera.CameraFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         if (null == savedInstanceState) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, Camera2BasicFragment.newInstance())
+                    .replace(R.id.container, CameraFragment.newInstance())
                     .commit();
         }
     }

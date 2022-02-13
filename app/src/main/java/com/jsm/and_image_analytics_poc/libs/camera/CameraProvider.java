@@ -1,36 +1,39 @@
 package com.jsm.and_image_analytics_poc.libs.camera;
 
 
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
+import android.content.Context;
 
-import com.jsm.and_image_analytics_poc.ui.AutoFitTextureView;
+import androidx.camera.view.PreviewView;
+
 import java.io.File;
 
 public class CameraProvider {
 
-    /**
-     * Callback para pasar la imagen una vez recibida correctamente
-     */
-    ImageReceivedCallback imageReceivedCallback;
 
-    Camera2Handler cameraHandler;
+    CameraXHandler cameraHandler;
 
+    private static CameraProvider INSTANCE = null;
 
+    // other instance variables can be here
 
-    public CameraProvider(LifecycleOwner owner) {
+    private CameraProvider() {
+        cameraHandler = new CameraXHandler();
+    };
 
-        this.imageReceivedCallback = imageReceivedCallback;
-        
+    public static synchronized CameraProvider getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new CameraProvider();
+        }
+        return(INSTANCE);
     }
 
-    public void initCamera(AutoFitTextureView mTextureView){
-        cameraHandler.initCamera(mTextureView);
+
+    public void initCamera(Context context, PreviewView previewView, ImageReceivedCallback imageReceivedCallback){
+        cameraHandler.initCamera(context, previewView, imageReceivedCallback);
     }
 
     public void closeCamera(){
-        cameraHandler.closeCamera();
-        cameraHandler.stopBackgroundThread();
+
     }
 
     public void takePicture(File f){

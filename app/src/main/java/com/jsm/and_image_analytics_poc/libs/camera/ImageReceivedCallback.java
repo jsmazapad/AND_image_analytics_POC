@@ -5,7 +5,7 @@ import java.io.File;
 public interface ImageReceivedCallback {
 
     public void onImageReceived(File imageFile);
-    public void onErrorReceived(String error);
+    public void onErrorReceived(Exception error);
 
 
 }
