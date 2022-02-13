@@ -36,6 +36,10 @@ public class CameraProvider {
 
     }
 
+    public void switchCamera(Context context){
+        cameraHandler.switchLensFacing(context);
+    }
+
     public void takePicture(File f){
         cameraHandler.takePicture(f);
     }

@@ -40,14 +40,15 @@
                 android:text="Hacer foto" />
 
             <ImageButton
-                android:id="@+id/info"
+                android:id="@+id/cameraSelector"
                 style="@android:style/Widget.Material.Light.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|right"
-                android:contentDescription="Información"
+                android:contentDescription="Selección de cámara"
+                android:onClick="@{() -> viewModel.selectCamera(context)}"
                 android:padding="20dp"
-                android:src="@android:drawable/ic_menu_info_details" />
+                android:src="@android:drawable/ic_menu_camera" />
 
         </FrameLayout>
 

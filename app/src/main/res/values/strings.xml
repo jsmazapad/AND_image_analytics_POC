@@ -13,6 +13,7 @@
 
         ]]>
     </string>
+    <string name="error_network_ask_retry"> ¿Do you want to reload data?</string>
     <string name="default_modal_okButton">Ok</string>
     <string name="default_modal_cancelButton">Cancel</string>
 </resources>
