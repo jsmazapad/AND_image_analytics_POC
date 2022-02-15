@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.camera.view.PreviewView;
@@ -76,6 +77,7 @@ public class CameraViewModel extends BaseViewModel implements ImageReceivedCallb
     public void takePicture(Context context){
 
        if (!isActive) {
+           isActive = true;
            timer.scheduleAtFixedRate(new TimerTask() {
                @Override
                public void run() {
@@ -87,6 +89,7 @@ public class CameraViewModel extends BaseViewModel implements ImageReceivedCallb
            }, 0, 1000);
        }else{
            timer.cancel();
+           isActive = false;
        }
 
 
@@ -95,6 +98,30 @@ public class CameraViewModel extends BaseViewModel implements ImageReceivedCallb
     public void selectCamera(Context context){
         CameraProvider.getInstance().switchCamera(context);
     }
+
+
+    public void changeFlash(View view, Context context){
+
+        CameraProvider.getInstance().changeFlash(context, getNextFlashMode(CameraProvider.getInstance().getFlashMode()));
+    }
+
+    private CameraProvider.FlashModes getNextFlashMode(CameraProvider.FlashModes previousMode){
+        CameraProvider.FlashModes flashModeToReturn = null;
+        CameraProvider.FlashModes[] values = CameraProvider.FlashModes.values();
+        for (int i=0; i< values.length; i++) {
+            if (previousMode == values[i]){
+                if(i == values.length-1){
+                    flashModeToReturn = values[0];
+                }else{
+                    flashModeToReturn = values[i+1];
+                }
+            }
+        }
+
+        return flashModeToReturn;
+    }
+
+
 
 
 }

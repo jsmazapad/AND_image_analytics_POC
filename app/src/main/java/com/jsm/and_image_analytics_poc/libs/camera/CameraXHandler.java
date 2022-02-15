@@ -16,8 +16,6 @@ import androidx.lifecycle.LifecycleOwner;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -42,31 +40,19 @@ public class CameraXHandler {
     int lensFacing = CameraSelector.LENS_FACING_BACK;
     int flashMode = ImageCapture.FLASH_MODE_OFF;
 
-    public enum FlashMode{
-        OFF(ImageCapture.FLASH_MODE_OFF),
-        AUTO(ImageCapture.FLASH_MODE_AUTO),
-        ON(ImageCapture.FLASH_MODE_ON);
-
-        public final int imageCaptureMode;
-
-
-        FlashMode(int imageCaptureMode) {
-            this.imageCaptureMode = imageCaptureMode;
-        }
-
-
-
-    }
-
     public void switchLensFacing(Context context){
         lensFacing = lensFacing == CameraSelector.LENS_FACING_BACK ? CameraSelector.LENS_FACING_FRONT : CameraSelector.LENS_FACING_BACK;
         initCamera(context, previewView, imageReceivedCallback);
 
     }
 
-    public void changeFlash(Context context, FlashMode mode){
+    public void changeFlash(Context context, CameraProvider.FlashModes mode){
         flashMode = mode.imageCaptureMode;
         initCamera(context, previewView, imageReceivedCallback);
+    }
+
+    public CameraProvider.FlashModes getFlashMode(){
+        return CameraProvider.FlashModes.chooseByImageCaptureMode(flashMode);
     }
 
 
@@ -93,6 +79,7 @@ public class CameraXHandler {
                 //Focus on minimize latency instead of maximize quality
                 imageCapture = new ImageCapture.Builder()
                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                        .setFlashMode(flashMode)
                         .build();
 
                 // Choose the camera by requiring a lens facing

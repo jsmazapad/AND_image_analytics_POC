@@ -31,6 +31,17 @@
             android:layout_alignParentBottom="true"
             android:background="@color/white">
 
+            <ImageButton
+                android:id="@+id/flashSelector"
+                style="@android:style/Widget.Material.Light.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|left"
+                android:contentDescription="Selección de flash"
+                android:onClick="@{(view) -> viewModel.changeFlash(view,context)}"
+                android:padding="10dp"
+                android:src="@android:drawable/ic_menu_camera" />
+
             <Button
                 android:id="@+id/picture"
                 android:layout_width="wrap_content"
@@ -42,13 +53,14 @@
             <ImageButton
                 android:id="@+id/cameraSelector"
                 style="@android:style/Widget.Material.Light.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="center_vertical|right"
                 android:contentDescription="Selección de cámara"
                 android:onClick="@{() -> viewModel.selectCamera(context)}"
-                android:padding="20dp"
-                android:src="@android:drawable/ic_menu_camera" />
+                android:padding="10dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_flip_camera" />
 
         </FrameLayout>
 
